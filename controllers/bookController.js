@@ -150,12 +150,45 @@ exports.book_create_post = [
 
 // Display book delete form on GET.
 exports.book_delete_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Book delete GET");
+  //  Get the book details and the associated book instances in parallel
+  const [book, bookInstances] = await Promise.all([
+    Book.findById(req.params.id).exec(),
+    BookInstance.find({book: req.params.id}).exec(),
+  ]);
+
+  //  If the book is not found, return a 404
+  if (book == null) {
+    res.redirect("/catalog/books");
+  }
+
+  res.render("book_delete", {
+    title: "Delete Book",
+    book: book,
+    book_instances: bookInstances,
+  })
 });
 
 // Handle book delete on POST.
 exports.book_delete_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Book delete POST");
+  //  Get the book details and the associated book instances in parallel
+  const [book, bookInstances] = await Promise.all([
+    Book.findById(req.body.bookid).exec(),
+    BookInstance.find({book: req.body.bookid}).exec(),
+  ]);
+
+  //  If the book has instances, render the same way as for GET route
+  if (bookInstances.length > 0) {
+    res.render("book_delete", {
+      title: "Delete Book",
+      book: book,
+      book_instances: bookInstances,
+    });
+    return;
+  } else {
+    //  Book has no instances. Delete object and redirect to the list of books
+    await Book.findByIdAndDelete(req.body.bookid);
+    res.redirect("/catalog/books");
+  }
 });
 
 // Display book update form on GET.
