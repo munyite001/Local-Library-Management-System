@@ -9,8 +9,9 @@ block content
       select#book.form-control(name='book' required)
         option(value='') --Please select a book--
         for book in book_list
-          if selected_book==book._id.toString()
-            option(value=book._id, selected) #{book.title}
+          if selected_book == book._id.toString()
+            console.log(selected_book)
+            option(value=book._id selected) #{book.title}
           else
             option(value=book._id) #{book.title}
 

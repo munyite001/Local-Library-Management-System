@@ -113,8 +113,17 @@ exports.bookinstance_update_get = asyncHandler(async (req, res, next) => {
       BookInstance.findById(req.params.id).populate("book").exec(),
       Book.find({}, "title").exec(),
     ])
+
+    if (bookInstance == null) {
+      const err = new Error("Book Instance not found")
+      err.status = 404;
+      return next(err)
+    }
+
     res.render("bookinstance_form", {
+
       title: "Update Book Instance",
+      selected_book: bookInstance.book._id,
       bookinstance: bookInstance,
       book_list: allBooks
     })
@@ -145,6 +154,7 @@ exports.bookinstance_update_post = [
         imprint: req.body.imprint,
         status: req.body.status,
         due_back: req.body.due_back,
+        _id: req.params.id,
       });
 
       if (!errors.isEmpty()) {
